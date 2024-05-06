@@ -37,12 +37,13 @@ const EscapeState = union(enum) {
     hex: u1,
 };
 
-const StringSlice = struct {
+const UnescapedStringSlice = struct {
     str: []const u8,
     len: usize,
+    last: bool,
 };
 
-fn unescape(allocator: std.mem.Allocator, input: []const u8) std.mem.Allocator.Error!StringSlice {
+fn unescape(allocator: std.mem.Allocator, input: []const u8) std.mem.Allocator.Error!UnescapedStringSlice {
     const escaped = try allocator.alloc(u8, input.len);
 
     var state: EscapeState = .none;
@@ -63,6 +64,8 @@ fn unescape(allocator: std.mem.Allocator, input: []const u8) std.mem.Allocator.E
                 switch (c) {
                     'a' => escaped[i] = '\x07',
                     'b' => escaped[i] = '\x08',
+                    'c' => return .{ .str = escaped, .len = i, .last = true },
+                    'e' => escaped[i] = '\x1b',
                     'f' => escaped[i] = '\x0c',
                     'n' => escaped[i] = '\n',
                     'r' => escaped[i] = '\r',
@@ -150,7 +153,7 @@ fn unescape(allocator: std.mem.Allocator, input: []const u8) std.mem.Allocator.E
         },
     }
 
-    return .{ .str = escaped, .len = i };
+    return .{ .str = escaped, .len = i, .last = false };
 }
 
 pub fn main() !void {
@@ -217,6 +220,10 @@ pub fn main() !void {
                 const unescaped = try unescape(allocator, arg);
                 defer allocator.free(unescaped.str);
                 _ = try buffered_writer.write(unescaped.str[0..unescaped.len]);
+                if (unescaped.last) {
+                    output_newline = false;
+                    break;
+                }
             } else {
                 _ = try buffered_writer.write(arg);
             }
