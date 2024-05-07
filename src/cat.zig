@@ -101,34 +101,32 @@ fn complexCat(file: std.fs.File, writer: std.io.AnyWriter, buffer: []u8, line_nu
                     try writer.print("{d: >6}\t", .{line_number.*});
                 }
 
-                if (opts.show_nonprinting) {
-                    if (c >= 32) {
-                        if (c < 127) {
-                            try writer.writeByte(c);
-                        } else if (c == 127) {
-                            try writer.writeAll("^?");
-                        } else {
-                            try writer.writeAll("M-");
-                            if (c >= 128 + 32) {
-                                if (c < 128 + 127) {
-                                    try writer.writeByte(c - 128);
-                                } else {
-                                    try writer.writeAll("^?");
-                                }
-                            } else {
-                                try writer.writeAll("^");
-                                try writer.writeByte(c - 128 + 64);
-                            }
-                        }
+                newline = false;
+
+                if (!opts.show_nonprinting) {
+                    try writer.writeByte(c);
+                } else if (c >= 32) {
+                    if (c < 127) {
+                        try writer.writeByte(c);
+                    } else if (c == 127) {
+                        try writer.writeAll("^?");
                     } else {
-                        try writer.writeAll("^");
-                        try writer.writeByte(c + 64);
+                        try writer.writeAll("M-");
+                        if (c >= 128 + 32) {
+                            if (c < 128 + 127) {
+                                try writer.writeByte(c - 128);
+                            } else {
+                                try writer.writeAll("^?");
+                            }
+                        } else {
+                            try writer.writeAll("^");
+                            try writer.writeByte(c - 128 + 64);
+                        }
                     }
                 } else {
-                    try writer.writeByte(c);
+                    try writer.writeAll("^");
+                    try writer.writeByte(c + 64);
                 }
-
-                newline = false;
             },
         };
     }
