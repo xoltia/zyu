@@ -12,5 +12,13 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const cat_exe = b.addExecutable(.{
+        .name = "cat",
+        .root_source_file = b.path("src/cat.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
     b.installArtifact(echo_exe);
+    b.installArtifact(cat_exe);
 }
