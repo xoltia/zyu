@@ -36,28 +36,25 @@ const CatOptions = struct {
     }
 };
 
-inline fn fread(file: std.fs.File, buffer: []u8) !?usize {
+inline fn fread(file: std.fs.File, buffer: []u8) !?[]u8 {
     if (file.read(buffer)) |n| {
-        return if (n > 0) n else null;
+        return if (n > 0) buffer[0..n] else null;
     } else |err| {
         return err;
     }
 }
 
 fn simpleCat(file: std.fs.File, writer: std.io.AnyWriter, buffer: []u8) !void {
-    while (try fread(file, buffer)) |n| {
-        if (n == 0) break;
-        try writer.writeAll(buffer[0..n]);
+    while (try fread(file, buffer)) |read| {
+        try writer.writeAll(read);
     }
 }
 
 fn complexCat(file: std.fs.File, writer: std.io.AnyWriter, buffer: []u8, line_number: *usize, opts: CatOptions) !void {
     var newline = true;
 
-    while (try fread(file, buffer)) |n| {
-        if (n == 0) break;
-
-        for (buffer[0..n]) |c| switch (c) {
+    while (try fread(file, buffer)) |read|
+        for (read) |c| switch (c) {
             '\n' => {
                 if (opts.squeeze_blank and newline)
                     continue;
@@ -129,7 +126,6 @@ fn complexCat(file: std.fs.File, writer: std.io.AnyWriter, buffer: []u8, line_nu
                 }
             },
         };
-    }
 }
 
 pub fn main() !u8 {
