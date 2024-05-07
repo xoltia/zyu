@@ -37,11 +37,10 @@ const CatOptions = struct {
 };
 
 inline fn fread(file: std.fs.File, buffer: []u8) !?[]u8 {
-    if (file.read(buffer)) |n| {
-        return if (n > 0) buffer[0..n] else null;
-    } else |err| {
-        return err;
-    }
+    return if (file.read(buffer)) |n|
+        if (n > 0) buffer[0..n] else null
+    else |err|
+        err;
 }
 
 fn simpleCat(file: std.fs.File, writer: std.io.AnyWriter, buffer: []u8) !void {
