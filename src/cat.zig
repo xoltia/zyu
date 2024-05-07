@@ -36,11 +36,6 @@ const CatOptions = struct {
     }
 };
 
-const ProgramOption = struct {
-    long: ?[]const u8,
-    short: u8,
-};
-
 inline fn fread(file: std.fs.File, buffer: []u8) !?usize {
     if (file.read(buffer)) |n| {
         return if (n > 0) n else null;
