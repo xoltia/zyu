@@ -163,7 +163,8 @@ pub fn main() !void {
 
     const stdout = std.io.getStdOut().writer();
     const stderr = std.io.getStdErr().writer();
-    var buffered_writer = std.io.bufferedWriter(stdout);
+    var buffered_stdout = std.io.bufferedWriter(stdout);
+    var buffered_writer = buffered_stdout.writer();
 
     var output_newline = true;
     var enable_escapes = false;
@@ -209,19 +210,19 @@ pub fn main() !void {
 
         if (end_of_options) {
             if (!first_arg) {
-                _ = try buffered_writer.write(" ");
+                _ = try buffered_writer.writeByte(' ');
             }
 
             if (enable_escapes) {
                 const unescaped = try unescape(allocator, arg);
                 defer allocator.free(unescaped.str);
-                _ = try buffered_writer.write(unescaped.str[0..unescaped.len]);
+                _ = try buffered_writer.writeAll(unescaped.str[0..unescaped.len]);
                 if (unescaped.last) {
                     output_newline = false;
                     break;
                 }
             } else {
-                _ = try buffered_writer.write(arg);
+                _ = try buffered_writer.writeAll(arg);
             }
 
             first_arg = false;
@@ -229,8 +230,8 @@ pub fn main() !void {
     }
 
     if (output_newline) {
-        _ = try buffered_writer.write("\n");
+        _ = try buffered_writer.writeByte('\n');
     }
 
-    try buffered_writer.flush();
+    try buffered_stdout.flush();
 }
