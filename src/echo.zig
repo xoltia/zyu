@@ -162,6 +162,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     const stdout = std.io.getStdOut().writer();
+    const stderr = std.io.getStdErr().writer();
     var buffered_writer = std.io.bufferedWriter(stdout);
 
     var output_newline = true;
@@ -175,15 +176,10 @@ pub fn main() !void {
 
     if (args_without_program.len == 1) {
         if (std.mem.eql(u8, args_without_program[0], "--help")) {
-            _ = try buffered_writer.write(USAGE);
-            _ = try buffered_writer.write("\n");
-            try buffered_writer.flush();
+            _ = try stderr.write(USAGE ++ "\n");
             return;
         } else if (std.mem.eql(u8, args_without_program[0], "--version")) {
-            _ = try buffered_writer.write("echo (zyu) ");
-            _ = try buffered_writer.write(VERSION);
-            _ = try buffered_writer.write("\n");
-            try buffered_writer.flush();
+            _ = try stderr.write("echo (zyu) " ++ VERSION ++ "\n");
             return;
         }
     }
