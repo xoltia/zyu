@@ -127,6 +127,7 @@ fn unescape(allocator: std.mem.Allocator, input: []const u8) std.mem.Allocator.E
                     value = 0;
                     i += 2;
                     state = .none;
+                    continue :loop;
                 }
 
                 if (nth_digit == 1) {
