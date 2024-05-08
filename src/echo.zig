@@ -176,10 +176,10 @@ pub fn main() !void {
 
     if (args_without_program.len == 1) {
         if (std.mem.eql(u8, args_without_program[0], "--help")) {
-            _ = try stderr.write(USAGE ++ "\n");
+            _ = try stderr.writeAll(USAGE ++ "\n");
             return;
         } else if (std.mem.eql(u8, args_without_program[0], "--version")) {
-            _ = try stderr.write("echo (zyu) " ++ VERSION ++ "\n");
+            _ = try stderr.writeAll("echo (zyu) " ++ VERSION ++ "\n");
             return;
         }
     }
