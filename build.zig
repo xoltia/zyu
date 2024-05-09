@@ -19,6 +19,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const ls_exe = b.addExecutable(.{
+        .name = "ls",
+        .root_source_file = b.path("src/ls.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
     b.installArtifact(echo_exe);
     b.installArtifact(cat_exe);
+    b.installArtifact(ls_exe);
 }
