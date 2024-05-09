@@ -146,17 +146,19 @@ pub fn main() !u8 {
     var options = CatOptions{};
     var end_of_options = false;
     for (args_without_program) |arg| {
-        if (std.mem.eql(u8, arg, "--help")) {
+        if (end_of_options) {
+            try file_names.append(allocator, arg);
+        } else if (std.mem.eql(u8, arg, "--help")) {
             try stderr.print(USAGE, .{args[0]});
             try stderr.print("\n", .{});
             return 0;
         } else if (std.mem.eql(u8, arg, "--version")) {
             try stderr.print("cat (zyu) {s}\n", .{VERSION});
             return 0;
-        } else if (!end_of_options and std.mem.eql(u8, arg, "--")) {
+        } else if (std.mem.eql(u8, arg, "--")) {
             end_of_options = true;
             continue;
-        } else if (!end_of_options and arg[0] == '-' and arg.len > 1) {
+        } else if (arg[0] == '-' and arg.len > 1) {
             for (arg[1..]) |c| switch (c) {
                 'n' => options.number = true,
                 'b' => options.number_nonblank = true,
